@@ -15,6 +15,16 @@ public class Note {
         return noteid;
     }
 
+    @Override
+    public String toString() {
+        return "Note{" +
+                "noteid=" + noteid +
+                ", userid=" + userid +
+                ", notetitle='" + notetitle + '\'' +
+                ", notedescription='" + notedescription + '\'' +
+                '}';
+    }
+
     public Integer getUserid() {
         return userid;
     }

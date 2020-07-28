@@ -77,17 +77,15 @@
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    <tr>
-                                        <td>
-                                            <button type="button" class="btn btn-success">Edit</button>
-                                            <a class="btn btn-danger">Delete</a>
-                                        </td>
-
-                                        <th scope="row">Example Note Title</th>
-                                        <td>Example Note Description </td>
-                                    </tr>
                                     <th:block th:each="note : ${notes}">
                                         <tr>
+                                            <td>
+                                                <button type="button" class="btn btn-success" th:attr="onclick=|showNoteModal('${note.getNoteid()}', '${note.getNotetitle()}', '${note.getNotedescription()}')|" >Edit</button>
+                                                <form action="#" method="POST" th:action="@{/deletenote}" th:object="${Note}">
+                                                    <input type="hidden" name="noteid" id="note-id-delete" th:value="${note.noteid}">
+                                                    <button class="btn btn-danger" type="submit" >Delete</button>
+                                                </form>
+                                            </td>
                                             <th scope="row" th:text="${note.notetitle}">...</td>
                                             <td th:text="${note.notedescription}">...</td>
                                         </tr>
@@ -107,7 +105,7 @@
                                     </div>
                                     <div class="modal-body">
                                         <form action="#" method="POST" th:object="${Note}" th:action="@{/notes}">
-                                            <input type="hidden" name="noteId" id="note-id">
+                                            <input type="hidden" name="noteid" id="note-id">
                                             <div class="form-group">
                                                 <label for="note-title" class="col-form-label">Title</label>
                                                 <input type="text" name= "notetitle" class="form-control" id="note-title" maxlength="20" required>
@@ -203,6 +201,7 @@
         <script type="text/javascript">
             // For opening the note modal
             function showNoteModal(noteId, noteTitle, noteDescription) {
+
                 $('#note-id').val(noteId ? noteId : '');
                 $('#note-title').val(noteTitle ? noteTitle : '');
                 $('#note-description').val(noteDescription ? noteDescription : '');

@@ -10,6 +10,7 @@ public class LoginController {
 
     @GetMapping()
     public String loginView() {
+
         return "login";
     }
 }

@@ -19,12 +19,14 @@ public class SignupController {
     }
 
     @GetMapping
-    public String signUpView(){
+    public String signUpView() {
+        if (userService.isUsernameAvailable("yasmine"))
+            userService.createUser(new User(null, "yasmine", "mohamed", "mohamed", "mohamed", "mohamed"));
         return "signup";
     }
 
     @PostMapping
-    public String signUpUser (User user, Model model) {
+    public String signUpUser(User user, Model model) {
         String errorMsg = null;
         if (!userService.isUsernameAvailable(user.getUsername())) {
             errorMsg = "Sorry, this username is not available!";

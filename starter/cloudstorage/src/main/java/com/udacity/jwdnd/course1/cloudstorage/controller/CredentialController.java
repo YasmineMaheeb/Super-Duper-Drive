@@ -15,10 +15,12 @@ import java.util.ArrayList;
 public class CredentialController {
     private UserService userService;
     private CredentialService credentialService;
+    private HomeController homeController;
 
-    public CredentialController(UserService userService, CredentialService credentialService) {
+    public CredentialController(UserService userService, CredentialService credentialService, HomeController homeController) {
         this.userService = userService;
         this.credentialService = credentialService;
+        this.homeController = homeController;
     }
 
     @PostMapping("/credentials")
@@ -35,6 +37,8 @@ public class CredentialController {
         }
         ArrayList<Credential> crds = credentialService.getCredentials(userid);
         model.addAttribute("credentials", crds);
+        homeController.prepareModel(auth, model);
+        model.addAttribute("message","Credential added/updated successfully!");
         return "home";
     }
 
@@ -46,6 +50,8 @@ public class CredentialController {
         credentialService.deleteCredential(credential.getCredentialid());
         ArrayList<Credential> crds = credentialService.getCredentials(userid);
         model.addAttribute("credentials", crds);
+        homeController.prepareModel(auth, model);
+        model.addAttribute("message","Credential deleted successfully!");
         return "home";
     }
 }

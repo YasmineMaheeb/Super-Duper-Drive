@@ -38,32 +38,24 @@ public class FileUploadController {
 
     private final FileSystemStorageService storageService;
     private UserService userService;
+    private HomeController homeController;
+
 
     @Autowired
-    public FileUploadController(FileSystemStorageService storageService, UserService userService) {
+    public FileUploadController(FileSystemStorageService storageService, UserService userService, HomeController homeController) {
         this.storageService = storageService;
         this.userService = userService;
+        this.homeController = homeController;
     }
 
-//    @GetMapping("/")
-//    public String listUploadedFiles(Model model) throws IOException {
-//
-//        model.addAttribute("files", storageService.loadAll().map(
-//                path -> MvcUriComponentsBuilder.fromMethodName(FileUploadController.class,
-//                        "serveFile", path.getFileName().toString()).build().toUri().toString())
-//                .collect(Collectors.toList()));
-//
-//        return "uploadForm";
-//    }
 
     @GetMapping("/files/{fileId:.+}")
     @ResponseBody
-    public ResponseEntity<Resource> serveFile(@PathVariable int fileId) throws SQLException {
+    public ResponseEntity<Resource> serveFile(Authentication auth, @PathVariable int fileId, Model model) throws SQLException {
 
         File file = storageService.load(fileId);
-//        return ResponseEntity.ok().header(HttpHeaders.CONTENT_DISPOSITION,
-//                "attachment; filename=\"" + file.getFilename() + "\"").body(file);
-        byte[] data = file.getFiledata();//file.getFiledata().getBytes(1, (int)file.getFiledata().length());
+        byte[] data = file.getFiledata();
+        homeController.prepareModel(auth, model);
         return ResponseEntity.ok()
                 .contentType(MediaType.parseMediaType(file.getContenttype()))
                 .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + file.getFilename() + "\"")
@@ -73,26 +65,50 @@ public class FileUploadController {
     @PostMapping("/files")
     public String handleFileUpload(@RequestParam("file") MultipartFile file,
                                    Model model, Authentication auth) throws IOException, SQLException {
-        String username = auth.getName();
-        User user = userService.getUser(username);
-        int userid = user.getUserid();
-        if (file != null) {
-            storageService.databaseStore(userid, file);
+        try {
+            String username = auth.getName();
+            User user = userService.getUser(username);
+            int userid = user.getUserid();
+            if (!file.isEmpty()) {
+                if (storageService.isFileNameAvailable(userid, file.getOriginalFilename())) {
+                    storageService.databaseStore(userid, file);
+                    homeController.prepareModel(auth, model);
+                    model.addAttribute("message",
+                            "You successfully uploaded " + file.getOriginalFilename() + "!");
+                } else {
+                    homeController.prepareModel(auth, model);
+                    model.addAttribute("message",
+                            "You already uploaded a file with this name!");
+                }
+            } else {
+                homeController.prepareModel(auth, model);
+                model.addAttribute("message",
+                        "You did not choose a file!");
+            }
+        } catch (Exception e) {
+            homeController.prepareModel(auth, model);
             model.addAttribute("message",
-                    "You successfully uploaded " + file.getOriginalFilename() + "!");
-        } else {
+                    "Failed to store file, try again!");
 
-            model.addAttribute("message",
-                    "You did not choose a file!");
         }
-        return "redirect:/home";
+        return "home";
     }
 
     @PostMapping("/deletefile")
-    public String deleteFile(File file, Model model, Authentication auth){
-        storageService.delete(file.getFileId());
-        return "redirect:/home";
+    public String deleteFile(File file, Model model, Authentication auth) {
+        try {
+            storageService.delete(file.getFileId());
+            homeController.prepareModel(auth, model);
+            model.addAttribute("message", "File deleted successfully");
+            return "home";
+        } catch (Exception e) {
+            homeController.prepareModel(auth, model);
+            model.addAttribute("message", "Problem occured during file deletion, please try again!");
+
+            return "home";
+        }
     }
+
     @ExceptionHandler(StorageFileNotFoundException.class)
     public ResponseEntity<?> handleStorageFileNotFound(StorageFileNotFoundException exc) {
         return ResponseEntity.notFound().build();

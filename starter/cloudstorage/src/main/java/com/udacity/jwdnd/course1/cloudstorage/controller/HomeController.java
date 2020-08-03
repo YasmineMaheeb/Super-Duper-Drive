@@ -9,10 +9,8 @@ import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder;
 
 import java.util.ArrayList;
-import java.util.stream.Collectors;
 
 @Controller
 public class HomeController {
@@ -31,6 +29,21 @@ public class HomeController {
 
     @GetMapping("/home")
     public String homeView(Authentication auth, Model model) {
+        try {
+            String username = auth.getName();
+            int userid = userService.getUser(username).getUserid();
+            ArrayList<Note> notes = noteService.getNotes(userid);
+            model.addAttribute("notes", notes);
+            ArrayList<Credential> crds = credentialService.getCredentials(userid);
+            model.addAttribute("credentials", crds);
+            model.addAttribute("files", storageService.loadAll(userid));
+            return "home";
+        } catch (Exception e){
+            return "login";
+        }
+    }
+
+    public Model prepareModel(Authentication auth, Model model){
         String username = auth.getName();
         int userid = userService.getUser(username).getUserid();
         ArrayList<Note> notes = noteService.getNotes(userid);
@@ -38,14 +51,12 @@ public class HomeController {
         ArrayList<Credential> crds = credentialService.getCredentials(userid);
         model.addAttribute("credentials", crds);
         model.addAttribute("files", storageService.loadAll(userid));
-
-        return "home";
+        model.addAttribute("message", null);
+        return model;
     }
 
-//    @RequestMapping("/")
-//    public String errorMapping(Authentication auth) {
-//        if (auth.getName() != null)
-//            return "error";
-//        return "redirect:/signup";
-//    }
+    @RequestMapping("/")
+    public String errorMapping(Authentication auth) {
+        return "signup";
+    }
 }

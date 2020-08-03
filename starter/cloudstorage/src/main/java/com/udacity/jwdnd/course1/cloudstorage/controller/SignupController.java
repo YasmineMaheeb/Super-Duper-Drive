@@ -40,6 +40,7 @@ public class SignupController {
         }
         if (errorMsg == null) {
             model.addAttribute("signupSuccess", true);
+            model.addAttribute("message", "You registered successfully!");
             return "login";
         }
         model.addAttribute("signupError", errorMsg);

@@ -40,33 +40,19 @@ public class FileSystemStorageService {
         this.fileMapper = fileMapper;
     }
 
+    public boolean isFileNameAvailable(int userid, String filename) {
 
-//    public void store(MultipartFile file) {
-//        String filename = StringUtils.cleanPath(file.getOriginalFilename());
-//        try {
-//            if (file.isEmpty()) {
-//                throw new StorageException("Failed to store empty file " + filename);
-//            }
-//            if (filename.contains("..")) {
-//                // This is a security check
-//                throw new StorageException(
-//                        "Cannot store file with relative path outside current directory "
-//                                + filename);
-//            }
-//            try (InputStream inputStream = file.getInputStream()) {
-//                Files.copy(inputStream, this.rootLocation.resolve(filename),
-//                        StandardCopyOption.REPLACE_EXISTING);
-//            }
-//        } catch (IOException e) {
-//            throw new StorageException("Failed to store file " + filename, e);
-//        }
-//    }
+        ArrayList<File> files = fileMapper.getFiles(userid);
+        for (File file : files)
+            if (file.getFilename().equals(filename))
+                return false;
+        return true;
+    }
 
     public void databaseStore(int userid, MultipartFile file) {
         String filename = StringUtils.cleanPath(file.getOriginalFilename());
 
         try {
-
             byte[] bytes = file.getBytes();
             Blob blob = new javax.sql.rowset.serial.SerialBlob(bytes);
             String contenttype = file.getContentType();
@@ -104,10 +90,9 @@ public class FileSystemStorageService {
         return fileMapper.getFile(fileId);
     }
 
-    public void delete(int fileId){
+    public void delete(int fileId) {
         fileMapper.delete(fileId);
     }
-
 
 
 }

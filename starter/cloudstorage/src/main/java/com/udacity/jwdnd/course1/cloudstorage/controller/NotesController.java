@@ -18,10 +18,12 @@ import java.util.ArrayList;
 public class NotesController {
     private UserService userService;
     private NoteService noteService;
+    private HomeController homeController;
 
-    public NotesController(UserService userService, NoteService noteService) {
+    public NotesController(UserService userService, NoteService noteService, HomeController homeController) {
         this.userService = userService;
         this.noteService = noteService;
+        this.homeController = homeController;
     }
 
     @PostMapping("/notes")
@@ -30,12 +32,8 @@ public class NotesController {
         User user = userService.getUser(username);
         int userid = user.getUserid();
         if(note.getNotedescription() != null) {
-            String desc = note.getNotedescription().replace('\n', '*');
+            String desc = note.getNotedescription().replace('\n', ',');
             note.setNotedescription(desc);
-        }
-        if(note.getNotetitle() != null){
-            String title = note.getNotetitle().replace('\n', '*');
-            note.setNotedescription(title);
         }
         if(note.getNoteid()!=null){
             noteService.updateNote(note.getNoteid(), note.getNotetitle(), note.getNotedescription());
@@ -46,6 +44,8 @@ public class NotesController {
         }
         ArrayList<Note> notes = noteService.getNotes(userid);
         model.addAttribute("notes", notes);
+        homeController.prepareModel(auth, model);
+        model.addAttribute("message","Note added/updated successfully!");
         return "home";
     }
 
@@ -58,6 +58,8 @@ public class NotesController {
         noteService.deleteNote(note.getNoteid());
         ArrayList<Note> notes = noteService.getNotes(userid);
         model.addAttribute("notes", notes);
+        homeController.prepareModel(auth, model);
+        model.addAttribute("message","Note deleted successfully!");
         return "home";
     }
 }

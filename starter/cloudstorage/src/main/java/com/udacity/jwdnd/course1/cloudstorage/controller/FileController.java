@@ -18,13 +18,13 @@ import java.util.ArrayList;
 
 @Controller
 public class FileController {
-    private UserMapper userMapper;
-    private NoteMapper noteMapper;
+//    private UserMapper userMapper;
+//    private NoteMapper noteMapper;
 
-    public FileController(UserMapper userMapper, NoteMapper noteMapper) {
-        this.userMapper = userMapper;
-        this.noteMapper = noteMapper;
-    }
+//    public FileController(UserMapper userMapper, NoteMapper noteMapper) {
+//        this.userMapper = userMapper;
+//        this.noteMapper = noteMapper;
+//    }
 
     //TODO add logic
     @PostMapping("/file-upload")

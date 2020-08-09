@@ -9,6 +9,7 @@ public class StorageProperties {
      * Folder location for storing files
      */
     private String location = "upload-dir";
+    private String maxFileSize = "max-file-size";
 
     public String getLocation() {
         return location;
@@ -18,4 +19,11 @@ public class StorageProperties {
         this.location = location;
     }
 
+    public String getMaxFileSize(){
+        return maxFileSize;
+    }
+
+    public void setMaxFileSize(String maxFileSize) {
+        this.maxFileSize = maxFileSize;
+    }
 }

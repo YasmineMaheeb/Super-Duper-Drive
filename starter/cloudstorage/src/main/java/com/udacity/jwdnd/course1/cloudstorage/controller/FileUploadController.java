@@ -12,6 +12,7 @@ import com.udacity.jwdnd.course1.cloudstorage.model.User;
 import com.udacity.jwdnd.course1.cloudstorage.services.FileSystemStorageService;
 import com.udacity.jwdnd.course1.cloudstorage.services.StorageService;
 import com.udacity.jwdnd.course1.cloudstorage.services.UserService;
+import org.apache.coyote.Request;
 import org.hibernate.Hibernate;
 import org.hibernate.SessionFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,13 +34,15 @@ import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import javax.naming.SizeLimitExceededException;
+
 @Controller
 public class FileUploadController {
 
     private final FileSystemStorageService storageService;
     private UserService userService;
     private HomeController homeController;
-
+    private final int maxFileSize = 128000;
 
     @Autowired
     public FileUploadController(FileSystemStorageService storageService, UserService userService, HomeController homeController) {
@@ -71,10 +74,18 @@ public class FileUploadController {
             int userid = user.getUserid();
             if (!file.isEmpty()) {
                 if (storageService.isFileNameAvailable(userid, file.getOriginalFilename())) {
-                    storageService.databaseStore(userid, file);
-                    homeController.prepareModel(auth, model);
-                    model.addAttribute("message",
-                            "You successfully uploaded " + file.getOriginalFilename() + "!");
+                    System.out.println(file.getSize() + " bytes");
+                    if (file.getSize() <= maxFileSize) {
+                        storageService.databaseStore(userid, file);
+                        homeController.prepareModel(auth, model);
+                        model.addAttribute("message",
+                                "You successfully uploaded " + file.getOriginalFilename() + "!");
+                    } else {
+
+                        homeController.prepareModel(auth, model);
+                        model.addAttribute("message",
+                                "You are trying to upload a file that exceeds the maximum file size!");
+                    }
                 } else {
                     homeController.prepareModel(auth, model);
                     model.addAttribute("message",
@@ -85,7 +96,8 @@ public class FileUploadController {
                 model.addAttribute("message",
                         "You did not choose a file!");
             }
-        } catch (Exception e) {
+        }
+        catch (Exception e) {
             homeController.prepareModel(auth, model);
             model.addAttribute("message",
                     "Failed to store file, try again!");

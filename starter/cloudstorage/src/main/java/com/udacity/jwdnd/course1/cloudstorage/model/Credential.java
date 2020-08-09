@@ -17,6 +17,19 @@ public class Credential {
         this.password = password;
     }
 
+    @Override
+    public String toString() {
+        return "Credential{" +
+                "credentialid=" + credentialid +
+                ", userid=" + userid +
+                ", url='" + url + '\'' +
+                ", username='" + username + '\'' +
+                ", key='" + key + '\'' +
+                ", password='" + password + '\'' +
+                ", unencryptedPassword='" + unencryptedPassword + '\'' +
+                '}';
+    }
+
     public Integer getCredentialid() {
         return credentialid;
     }

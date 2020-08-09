@@ -12,11 +12,11 @@
 <div class="container">
     <div id="logoutDiv">
         <form action="#" method="POST" th:href="@{/logout}" th:action="@{/logout}">
-            <button type="submit" class="btn btn-secondary float-right">Logout</button>
+            <button id="logout" type="submit" class="btn btn-secondary float-right">Logout</button>
         </form>
     </div>
     <div id="messageDiv">
-        <a th:if="${message!=null}" th:text="${message}"></a>
+        <a th:if="${message!=null}" th:text="${message}" id="message"></a>
     </div>
     <div id="contentDiv" style="clear: right;">
         <nav style="clear: right;">
@@ -58,17 +58,18 @@
                         </thead>
                         <tbody>
                         <th:block th:each="file : ${files}">
-                        <tr>
-                            <td>
-                                <a target="_blank" class="btn btn-success" th:href="${'files/' + file.fileId}">View</a>
-                                <form action="#" method="POST" th:action="@{/deletefile}" th:object="${File}">
-                                    <input type="hidden" name="fileId" id="file-id-delete"
-                                           th:value="${file.fileId}">
-                                    <button class="btn btn-danger" type="submit">Delete</button>
-                                </form>
-                            </td>
-                            <th scope="row" th:text="${file.filename}"></th>
-                        </tr>
+                            <tr>
+                                <td>
+                                    <a target="_blank" class="btn btn-success"
+                                       th:href="${'files/' + file.fileId}">View</a>
+                                    <form action="#" method="POST" th:action="@{/deletefile}" th:object="${File}">
+                                        <input type="hidden" name="fileId" id="file-id-delete"
+                                               th:value="${file.fileId}">
+                                        <button class="btn btn-danger" type="submit">Delete</button>
+                                    </form>
+                                </td>
+                                <th scope="row" th:text="${file.filename}"></th>
+                            </tr>
                         </th:block>
                         </tbody>
 
@@ -77,7 +78,7 @@
             </div>
             <div class="tab-pane fade" id="nav-notes" role="tabpanel" aria-labelledby="nav-notes-tab">
                 <button style="margin: 0.25em;" type="button" class="btn btn-info float-right"
-                        onclick="showNoteModal()">
+                        onclick="showNoteModal()" id="addNoteButton">
                     + Add a New Note
                 </button>
 
@@ -91,22 +92,26 @@
                         </tr>
                         </thead>
                         <tbody>
-                        <th:block th:each="note : ${notes}">
+                        <th:block th:each="note : ${notes}" class="notes">
                             <tr>
                                 <td>
-                                    <button type="button" class="btn btn-success"
+                                    <button type="button" th:id="${note.getNoteid()}" class="btn btn-success"
                                             th:attr="onclick=|showNoteModal('${note.getNoteid()}', '${note.getNotetitle()}', '${note.getNotedescription()}')|">
                                         Edit
                                     </button>
                                     <form action="#" method="POST" th:action="@{/deletenote}" th:object="${Note}">
                                         <input type="hidden" name="noteid" id="note-id-delete"
-                                               th:value="${note.noteid}">
-                                        <button class="btn btn-danger" type="submit">Delete</button>
+                                               th:value="${note.noteid}" class="noteId">
+                                        <button class="btn btn-danger" type="submit"
+                                                th:id="'delete'+${note.getNoteid()}">Delete
+                                        </button>
                                     </form>
                                 </td>
-                                <th scope="row" th:text="${note.notetitle}">...
+                                <th scope="row" th:text="${note.notetitle}" class="noteTitle" name="noteTitle">...
                                 </td>
-                                <td th:text="${note.notedescription}">...</td>
+                                <td th:text="${note.notedescription}" class="noteDescription" name="noteDescription">
+                                    ...
+                                </td>
                             </tr>
                         </th:block>
                         </tbody>
@@ -151,7 +156,7 @@
             </div>
             <div class="tab-pane fade" id="nav-credentials" role="tabpanel" aria-labelledby="nav-credentials-tab">
                 <button style="margin: 0.25em;" type="button" class="btn btn-info float-right"
-                        onclick="showCredentialModal()">
+                        onclick="showCredentialModal()" id="addCredentialButton">
                     + Add a New Credential
                 </button>
 
@@ -169,18 +174,22 @@
                         <th:block th:each="crd : ${credentials}">
                             <tr>
                                 <td>
-                                    <button type="button" class="btn btn-success"
+                                    <button type="button" class="btn btn-success" th:id="'upd'+${crd.getCredentialid()}"
                                             th:attr="onclick=|showCredentialModal('${crd.getCredentialid()}', '${crd.getUrl()}', '${crd.getUsername()}', '${crd.getUnencryptedPassword()}')|">
                                         Edit
                                     </button>
-                                    <form action="#" method="POST" th:action="@{/deletecredential}" th:object="${Credential}">
-                                        <input type="hidden" name="credentialid" id="credential-id-delete" th:value="${crd.credentialid}">
-                                        <button class="btn btn-danger" type="submit">Delete</button>
+                                    <form action="#" method="POST" th:action="@{/deletecredential}"
+                                          th:object="${Credential}">
+                                        <input type="hidden" name="credentialid" id="credential-id-delete"
+                                               th:value="${crd.credentialid}" class="credentialId">
+                                        <button class="btn btn-danger" type="submit" th:id="'deleteCrd'+${crd.getCredentialid()}">Delete</button>
                                     </form>
                                 </td>
-                                <th scope="row" th:text="${crd.url}"></th>
-                                <td th:text="${crd.username}"></td>
+                                <th scope="row" th:text="${crd.url}" class="credentialUrl"></th>
+                                <td th:text="${crd.username}" class="credentialUsername"></td>
                                 <td th:text="${crd.password}"></td>
+                                <input type="hidden"
+                                       th:value="${crd.getUnencryptedPassword()}" class="credentialPassword">
                             </tr>
                         </th:block>
                         </tbody>
@@ -255,6 +264,8 @@
                 $('#credential-password').val(password ? password : '');
                 $('#credentialModal').modal('show');
             }
+
+
 
 
 </script>
